@@ -7,6 +7,7 @@
 
 from fastapi import FastAPI
 from app.modules.users.routes import router as users_router
+from app.modules.accounts.routes import router as accounts_router
 
 from app.db.session import engine
 from app.db.base import Base
@@ -19,3 +20,4 @@ app = FastAPI()
 Base.metadata.create_all(bind=engine)
 
 app.include_router(users_router, prefix="/api/v1")
+app.include_router(accounts_router, prefix="/api/v1")

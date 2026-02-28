@@ -52,8 +52,7 @@ def get_users(db: Session = Depends(get_db)):
 @router.post("/users")
 def create_user_endpoint(
     user: UserCreate,               # FastAPI automatically reads JSON and validates it
-    db: Session = Depends(get_db)   # FastAPI automatically injects db session
-):
+    db: Session = Depends(get_db)):   # FastAPI automatically injects db session
 
     # Call service layer
     new_user = create_user(
