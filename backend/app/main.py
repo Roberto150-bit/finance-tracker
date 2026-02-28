@@ -1,7 +1,6 @@
 from fastapi import FastAPI
+from app.modules.users.routes import router as users_router
 
 app = FastAPI()
 
-@app.get("/")
-def root():
-    return {"message": "Finance Tracker API Running"}
+app.include_router(users_router, prefix="/api/v1")
