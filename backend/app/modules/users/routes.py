@@ -41,6 +41,7 @@ def get_users(db: Session = Depends(get_db)):
     # Convert db objects into safe response format
     return [
         {
+            "id": user.id.hex(),
             "email": user.email
         }
         for user in users

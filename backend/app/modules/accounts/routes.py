@@ -27,7 +27,11 @@ def get_accounts(db: Session = Depends(get_db)):
     # Convert db objects into safe response format
     return [
         {
-            "name": account.name
+            "id": account.id.hex(), # hex() converts binary UUID into readable string
+            "user_id": account.user_id.hex(),
+            "name": account.name,
+            "account_type": account.account_type,
+            "balance": account.balance
         }
         for account in accounts
     ]
