@@ -27,7 +27,8 @@ def get_transactions(db: Session = Depends(get_db)):
     # Convert db objects into safe response format
     return [
         {
-            "id": transaction.account_id,
+            "id": transaction.id.hex(),
+            "account_id": transaction.account_id.hex(),
             "amount": transaction.amount,
             "description": transaction.description,
             "transaction_type": transaction.transaction_type
