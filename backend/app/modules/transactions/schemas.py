@@ -4,7 +4,7 @@ from pydantic import BaseModel
 # This schema represents the data  required to CREATE a user
 class TransactionCreate(BaseModel):
 
-    account_id: bytes
+    account_id: str
     amount: float
     description: str
     transaction_type: str

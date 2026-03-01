@@ -44,10 +44,12 @@ def create_transaction_endpoint(
     transaction: TransactionCreate,               
     db: Session = Depends(get_db)):   
 
+    account_bytes = bytes.fromhex(transaction.account_id)
+
     # Call service layer
     new_transaction = create_transaction(
         db,
-        transaction.account_id,
+        account_bytes,
         transaction.amount,
         transaction.description,
         transaction.transaction_type

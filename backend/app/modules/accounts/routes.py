@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.modules.accounts.schemas import AccountCreate
-from app.modules.accounts.service import create_account, get_all_accounts
+from app.modules.accounts.service import create_account, get_all_accounts, calculate_balance
 from app.db.session import SessionLocal
 
 # Router groups endpoints
@@ -18,7 +18,6 @@ def get_db():
         db.close() 
 
 
-
 @router.get("/accounts")
 def get_accounts(db: Session = Depends(get_db)):
 
@@ -31,11 +30,10 @@ def get_accounts(db: Session = Depends(get_db)):
             "user_id": account.user_id.hex(),
             "name": account.name,
             "account_type": account.account_type,
-            "balance": account.balance
+            "balance": calculate_balance(db, account.id)
         }
         for account in accounts
     ]
-
 
 
 # POST endpoint to create a new account
@@ -57,3 +55,20 @@ def create_account_endpoint(
     return {
         "name": new_account.name
     } 
+
+@router.get("/accounts/{account_id}/balance")
+def get_account_balance(
+    account_id: str,
+    db: Session = Depends(get_db)):
+
+    # Convert hex str -> bytes
+    account_bytes = bytes.fromhex(account_id)
+
+    balance = calculate_balance(
+        db,
+        account_bytes
+    )
+
+    return {
+        "balance": balance
+    }
