@@ -1,8 +1,18 @@
-from fastapi import APIRouter, Depends
+from fastapi import (
+    APIRouter, 
+    Depends, 
+    HTTPException)
+
 from sqlalchemy.orm import Session
 
 from app.modules.accounts.schemas import AccountCreate
-from app.modules.accounts.service import create_account, get_all_accounts, calculate_balance
+
+from app.modules.accounts.service import (
+    create_account, 
+    get_all_accounts, 
+    calculate_balance, 
+    delete_account)
+
 from app.db.session import SessionLocal
 
 # Router groups endpoints
@@ -64,11 +74,33 @@ def get_account_balance(
     # Convert hex str -> bytes
     account_bytes = bytes.fromhex(account_id)
 
-    balance = calculate_balance(
-        db,
-        account_bytes
-    )
+    balance = calculate_balance(db, account_bytes)
 
     return {
         "balance": balance
     }
+
+@router.delete("/accounts/{account_id}")
+def delete_account_endpoint(
+    account_id: str,
+    db: Session = Depends(get_db)):
+
+    account_bytes = bytes.fromhex(account_id)
+
+    try:
+        delete_account(db, account_bytes)
+    
+    except ValueError as e:
+        if "not found" in str(e):
+            raise HTTPException(
+                status_code=404,
+                detail="Accont not found"
+            )
+        
+        if "transactions" in str(e):
+            raise HTTPException(
+                status_code=409,
+                detail="Cannot delete account with transactions"
+            )
+        
+    return

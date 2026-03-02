@@ -64,3 +64,24 @@ def calculate_balance(db: Session, account_id: bytes):
 
     # Final balance
     return (initial_balance + transactions_sum)
+
+def delete_account(db: Session, account_id: bytes):
+
+    # Get account row
+    account = db.query(Account).filter(
+        Account.id == account_id
+    ).first()
+    
+    if account is None:
+        raise ValueError("Account not found")
+    
+    # Check if account has a transaction
+    existing_transaction = db.query(Transaction).filter(
+        Transaction.account_id == account_id
+    ).first()
+
+    if existing_transaction is not None:
+        raise ValueError("Cannot delete account with transactions")
+    
+    db.delete(account)        
+    db.commit()   
