@@ -33,3 +33,16 @@ def get_all_transactions(db: Session):
     transactions = db.query(Transaction).all()
 
     return transactions
+
+
+def delete_transaction(db: Session, transaction_id: bytes):
+    # Get transaction row
+    transaction = db.query(Transaction).filter(
+        Transaction.id == transaction_id
+    ).first()
+    
+    if transaction is None:
+        raise ValueError("Transaction not found")
+     
+    db.delete(transaction)        
+    db.commit()   

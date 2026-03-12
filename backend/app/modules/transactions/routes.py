@@ -1,8 +1,14 @@
-from fastapi import APIRouter, Depends
+from fastapi import (
+    APIRouter, 
+    Depends, 
+    HTTPException)
 from sqlalchemy.orm import Session
 
 from app.modules.transactions.schemas import TransactionCreate
-from app.modules.transactions.service import create_transaction, get_all_transactions
+from app.modules.transactions.service import (
+    create_transaction, 
+    get_all_transactions,
+    delete_transaction)
 from app.db.session import SessionLocal
 
 router = APIRouter()
@@ -59,3 +65,36 @@ def create_transaction_endpoint(
     return {
         "amount": new_transaction.amount
     }
+
+
+# DELETE endpoint to delete a transaction
+@router.delete("/transactions/{transaction_id}")
+def delete_transaction_endpoint(
+    transaction_id: str,
+    db: Session = Depends(get_db)):
+
+    try:
+        transaction_bytes = bytes.fromhex(transaction_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid transaction id format"
+        )
+
+    if len(transaction_bytes) != 16:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid transaction id format"
+        )
+
+    try:
+        delete_transaction(db, transaction_bytes)
+
+    except ValueError as e:
+        if "not found" in str(e):
+            raise HTTPException(
+                status_code=404, 
+                detail="Transaction not found"
+            )
+    
+    return
